@@ -1,0 +1,106 @@
+#include <iostream>
+#include <vector>
+#include <queue>
+#include <limits>
+
+using namespace std;
+
+class PushRelabel {
+public:
+    PushRelabel(int n) : n(n), excess(n, 0), height(n, 0), flow(n, vector<int>(n, 0)) {
+        adj.resize(n);
+    }
+
+    void addEdge(int u, int v, int capacity) {
+        adj[u].push_back(v);
+        adj[v].push_back(u);
+        capacityMatrix[u][v] = capacity;
+    }
+
+    int maxFlow(int source, int sink) {
+        height[source] = n;
+        for (int v : adj[source]) {
+            flow[source][v] = capacityMatrix[source][v];
+            flow[v][source] = -flow[source][v];
+            excess[v] += flow[source][v];
+            excess[source] -= flow[source][v];
+        }
+
+        // Initialize the height of the nodes
+        pushRelabel(source, sink);
+        return excess[sink];
+    }
+
+private:
+    int n; // Number of vertices
+    vector<vector<int>> adj; // Adjacency list
+    vector<vector<int>> capacityMatrix = vector<vector<int>>(n, vector<int>(n, 0)); // Capacity matrix
+    vector<vector<int>> flow; // Flow matrix
+    vector<int> height; // Height of nodes
+    vector<int> excess; // Excess flow at each vertex
+
+    void push(int u, int v) {
+        int delta = min(excess[u], capacityMatrix[u][v] - flow[u][v]);
+        flow[u][v] += delta;
+        flow[v][u] -= delta;
+        excess[u] -= delta;
+        excess[v] += delta;
+    }
+
+    void relabel(int u) {
+        int minHeight = numeric_limits<int>::max();
+        for (int v : adj[u]) {
+            if (capacityMatrix[u][v] > flow[u][v]) {
+                minHeight = min(minHeight, height[v]);
+            }
+        }
+        if (minHeight < numeric_limits<int>::max()) {
+            height[u] = minHeight + 1;
+        }
+    }
+
+    void pushRelabel(int source, int sink) {
+        queue<int> q;
+        for (int u = 0; u < n; ++u) {
+            if (u != source && u != sink) {
+                q.push(u);
+            }
+        }
+
+        while (!q.empty()) {
+            int u = q.front();
+            q.pop();
+            for (int v : adj[u]) {
+                if (excess[u] > 0 && capacityMatrix[u][v] > flow[u][v]) {
+                    push(u, v);
+                }
+            }
+            if (excess[u] > 0) {
+                relabel(u);
+                q.push(u);
+            }
+        }
+    }
+};
+
+int main() {
+    int n = 6; // Number of vertices
+    PushRelabel pr(n);
+
+    // Add edges (u, v, capacity)
+    pr.addEdge(0, 1, 16);
+    pr.addEdge(0, 2, 13);
+    pr.addEdge(1, 2, 10);
+    pr.addEdge(1, 3, 12);
+    pr.addEdge(2, 1, 4);
+    pr.addEdge(2, 4, 14);
+    pr.addEdge(3, 2, 9);
+    pr.addEdge(3, 5, 20);
+    pr.addEdge(4, 3, 7);
+    pr.addEdge(4, 5, 4);
+
+    int maxFlow = pr.maxFlow(0, 5);
+    cout << "The maximum possible flow is " << maxFlow << endl;
+
+    return 0;
+}
