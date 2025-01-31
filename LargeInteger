@@ -1,0 +1,122 @@
+#include <iostream>
+#include <string>
+#include <algorithm>
+#include <stdexcept>
+
+class LargeInteger {
+private:
+    std::string value; // Store the number as a string
+
+    // Helper function to remove leading zeros
+    void removeLeadingZeros() {
+        while (value.length() > 1 && value[0] == '0') {
+            value.erase(0, 1);
+        }
+        if (value == "0") {
+            value = "0"; // Ensure we don't end up with an empty string
+        }
+    }
+
+public:
+    // Constructor
+    LargeInteger(const std::string& val) : value(val) {
+        removeLeadingZeros();
+    }
+
+    // Addition
+    LargeInteger operator+(const LargeInteger& other) const {
+        std::string num1 = value;
+        std::string num2 = other.value;
+        std::string result;
+        
+        // Make sure num1 is the longer one
+        if (num1.length() < num2.length()) {
+            std::swap(num1, num2);
+        }
+
+        int carry = 0;
+        int n1 = num1.length();
+        int n2 = num2.length();
+        
+        // Add from the end
+        for (int i = 0; i < n1; ++i) {
+            int digit1 = num1[n1 - 1 - i] - '0';
+            int digit2 = (i < n2) ? num2[n2 - 1 - i] - '0' : 0;
+            int sum = digit1 + digit2 + carry;
+            carry = sum / 10;
+            result.push_back((sum % 10) + '0');
+        }
+        
+        if (carry) {
+            result.push_back(carry + '0');
+        }
+        
+        std::reverse(result.begin(), result.end());
+        return LargeInteger(result);
+    }
+
+    // Subtraction
+    LargeInteger operator-(const LargeInteger& other) const {
+        // Assume this >= other for simplicity
+        std::string num1 = value;
+        std::string num2 = other.value;
+        std::string result;
+
+        int n1 = num1.length();
+        int n2 = num2.length();
+        int borrow = 0;
+
+        for (int i = 0; i < n1; ++i) {
+            int digit1 = num1[n1 - 1 - i] - '0';
+            int digit2 = (i < n2) ? num2[n2 - 1 - i] - '0' : 0;
+            if (digit1 < digit2 + borrow) {
+                digit1 += 10;
+                borrow = 1;
+            } else {
+                borrow = 0;
+            }
+            result.push_back((digit1 - digit2 - borrow) + '0');
+        }
+
+        std::reverse(result.begin(), result.end());
+        removeLeadingZeros();
+        return LargeInteger(result);
+    }
+
+    // Multiplication
+    LargeInteger operator*(const LargeInteger& other) const {
+        std::string num1 = value;
+        std::string num2 = other.value;
+        std::string result(num1.length() + num2.length(), '0');
+
+        for (int i = num1.length() - 1; i >= 0; --i) {
+            int carry = 0;
+            for (int j = num2.length() - 1; j >= 0; --j) {
+                int product = (num1[i] - '0') * (num2[j] - '0') + (result[i + j + 1] - '0') + carry;
+                carry = product / 10;
+                result[i + j + 1] = (product % 10) + '0';
+            }
+            result[i] += carry;
+        }
+
+        removeLeadingZeros();
+        return LargeInteger(result);
+    }
+
+    // Division (integer division)
+    LargeInteger operator/(const LargeInteger& other) const {
+        if (other.value == "0") {
+            throw std::invalid_argument("Division by zero");
+        }
+
+        std::string num1 = value;
+        std::string num2 = other.value;
+        std::string result;
+        std::string current;
+
+        for (char digit : num1) {
+            current += digit;
+            int count = 0;
+
+            while (current.length() > 0 && (current.length() > num2.length() || (current.length() == num2.length() && current >= num2))) {
+                current = LargeInteger(current)
