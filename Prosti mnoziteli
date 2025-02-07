@@ -1,0 +1,85 @@
+#include <iostream>
+#include <string>
+#include <vector>
+#include <cmath>
+
+class long_int {
+private:
+    std::string value;
+
+public:
+    // Constructor to initialize long_int with a string
+    long_int(const std::string& val) : value(val) {}
+
+    // Function to get the string value
+    std::string get_value() const {
+        return value;
+    }
+
+    // Function to convert string to integer for small values
+    // This is only for demonstration; in real applications, you would need a more robust solution
+    long long to_int() const {
+        return std::stoll(value);
+    }
+
+    // Function to check if the number is even
+    bool is_even() const {
+        return (value.back() - '0') % 2 == 0;
+    }
+
+    // Function to divide the number by 2
+    void divide_by_2() {
+        long long num = to_int();
+        num /= 2;
+        value = std::to_string(num);
+    }
+
+    // Function to check if the number is divisible by a given divisor
+    bool is_divisible_by(long long divisor) const {
+        return to_int() % divisor == 0;
+    }
+};
+
+// Function to get prime factors of a number
+std::vector<long_int> prime_factors(const long_int& num) {
+    std::vector<long_int> factors;
+    long long n = num.to_int();
+    
+    // Check for number of 2s that divide n
+    while (n % 2 == 0) {
+        factors.push_back(long_int("2"));
+        n /= 2;
+    }
+
+    // n must be odd at this point, so we can skip even numbers
+    for (long long i = 3; i <= std::sqrt(n); i += 2) {
+        while (n % i == 0) {
+            factors.push_back(long_int(std::to_string(i)));
+            n /= i;
+        }
+    }
+
+    // This condition is to check if n is a prime number greater than 2
+    if (n > 2) {
+        factors.push_back(long_int(std::to_string(n)));
+    }
+
+    return factors;
+}
+
+int main() {
+    std::string input;
+    std::cout << "Enter a number to factorize: ";
+    std::cin >> input;
+
+    long_int num(input);
+    std::vector<long_int> factors = prime_factors(num);
+
+    std::cout << "Prime factors of " << num.get_value() << " are: ";
+    for (const auto& factor : factors) {
+        std::cout << factor.get_value() << " ";
+    }
+    std::cout << std::endl;
+
+    return 0;
+}
