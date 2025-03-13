@@ -1,0 +1,237 @@
+#include <iostream>
+#include <cmath>
+using namespace std;
+
+struct Point {
+    double e[4]; // Homogeneous coordinates (x, y, z, w)
+
+    Point(double x = 0, double y = 0, double z = 0) {
+        e[0] = x;
+        e[1] = y;
+        e[2] = z;
+        e[3] = 1; // w = 1 for points
+    }
+};
+
+struct Matrix {
+    double m[4][4]; // 4x4 matrix
+
+    Matrix() {
+        for (int i = 0; i < 4; i++)
+            for (int j = 0; j < 4; j++)
+                m[i][j] = (i == j) ? 1 : 0; // Identity matrix
+    }
+
+    // Create a translation matrix
+    static Matrix translation(double tx, double ty, double tz) {
+        Matrix T;
+        T.m[0][3] = tx;
+        T.m[1][3] = ty;
+        T.m[2][3] = tz;
+        return T;
+    }
+
+    // Create a rotation matrix around the X-axis
+    static Matrix rotationX(double theta) {
+        Matrix R;
+        R.m[1][1] = cos(theta);
+        R.m[1][2] = -sin(theta);
+        R.m[2][1] = sin(theta);
+        R.m[2][2] = cos(theta);
+        return R;
+    }
+
+    // Create a rotation matrix around the Y-axis
+    static Matrix rotationY(double theta) {
+        Matrix R;
+        R.m[0][0] = cos(theta);
+        R.m[0][2] = sin(theta);
+        R.m[2][0] = -sin(theta);
+        R.m[2][2] = cos(theta);
+        return R;
+    }
+
+    // Create a rotation matrix around the Z-axis
+    static Matrix rotationZ(double theta) {
+        Matrix R;
+        R.m[0][0] = cos(theta);
+        R.m[0][1] = -sin(theta);
+        R.m[1][0] = sin(theta);
+        R.m[1][1] = cos(theta);
+        return R;
+    }
+
+    // Create a scaling matrix
+    static Matrix scaling(double sx, double sy, double sz) {
+        Matrix S;
+        S.m[0][0] = sx;
+        S.m[1][1] = sy;
+        S.m[2][2] = sz;
+        return S;
+    }
+
+    // Matrix multiplication
+    Matrix operator*(const Matrix &other) const {
+        Matrix result;
+        for (int i = 0; i < 4; i++) {
+            for (int j = 0; j < 4; j++) {
+                result.m[i][j] = 0;
+                for (int k = 0; k < 4; k++) {
+                    result.m[i][j] += m[i][k] * other.m[k][j];
+                }
+            }
+        }
+        return result;
+    }
+
+    // Transform a point using the matrix
+    Point operator*(const Point &p) const {
+        Point result;
+        for (int i = 0; i < 4; i++) {
+            result.e[i] = 0;
+            for (int j = 0; j < 4; j++) {
+                result.e[i] += m[i][j] * p.e[j];
+            }
+        }
+        return result;
+    }
+};
+
+// Output stream for Point
+ostream &operator<<(ostream &os, const Point &p) {
+    os << "[ " << p.e[0] << ", " << p.e[1] << ", " << p.e[2] << " ]";
+    return os;
+}
+
+int main() {
+    // Create a point
+    Point p(1, 2, 3);
+    cout << "Original Point: " << p << endl;
+
+    // Create transformation matrices
+    Matrix translationMatrix = Matrix::translation(2, 3, 4);
+    Matrix rotationMatrixX = Matrix::rotationX(M_PI / 4); // Rotate 45 degrees around X
+    Matrix scalingMatrix = Matrix::scaling(2, 2, 2); // Scale by 2
+
+    // Combine transformations: Scale -> Rotate -> Translate
+    Matrix transformationMatrix = translationMatrix * rotationMatrixX * scalingMatrix;
+
+   #include <iostream>
+#include <cmath>
+using namespace std;
+
+struct Point {
+    double e[4]; // Homogeneous coordinates (x, y, z, w)
+
+    Point(double x = 0, double y = 0, double z = 0) {
+        e[0] = x;
+        e[1] = y;
+        e[2] = z;
+        e[3] = 1; // w = 1 for points
+    }
+};
+
+struct Matrix {
+    double m[4][4]; // 4x4 matrix
+
+    Matrix() {
+        for (int i = 0; i < 4; i++)
+            for (int j = 0; j < 4; j++)
+                m[i][j] = (i == j) ? 1 : 0; // Identity matrix
+    }
+
+    // Create a translation matrix
+    static Matrix translation(double tx, double ty, double tz) {
+        Matrix T;
+        T.m[0][3] = tx;
+        T.m[1][3] = ty;
+        T.m[2][3] = tz;
+        return T;
+    }
+
+    // Create a rotation matrix around the X-axis
+    static Matrix rotationX(double theta) {
+        Matrix R;
+        R.m[1][1] = cos(theta);
+        R.m[1][2] = -sin(theta);
+        R.m[2][1] = sin(theta);
+        R.m[2][2] = cos(theta);
+        return R;
+    }
+
+    // Create a rotation matrix around the Y-axis
+    static Matrix rotationY(double theta) {
+        Matrix R;
+        R.m[0][0] = cos(theta);
+        R.m[0][2] = sin(theta);
+        R.m[2][0] = -sin(theta);
+        R.m[2][2] = cos(theta);
+        return R;
+    }
+
+    // Create a rotation matrix around the Z-axis
+    static Matrix rotationZ(double theta) {
+        Matrix R;
+        R.m[0][0] = cos(theta);
+        R.m[0][1] = -sin(theta);
+        R.m[1][0] = sin(theta);
+        R.m[1][1] = cos(theta);
+        return R;
+    }
+
+    // Create a scaling matrix
+    static Matrix scaling(double sx, double sy, double sz) {
+        Matrix S;
+        S.m[0][0] = sx;
+        S.m[1][1] = sy;
+        S.m[2][2] = sz;
+        return S;
+    }
+
+    // Matrix multiplication
+    Matrix operator*(const Matrix &other) const {
+        Matrix result;
+        for (int i = 0; i < 4; i++) {
+            for (int j = 0; j < 4; j++) {
+                result.m[i][j] = 0;
+                for (int k = 0; k < 4; k++) {
+                    result.m[i][j] += m[i][k] * other.m[k][j];
+                }
+            }
+        }
+        return result;
+    }
+
+    // Transform a point using the matrix
+    Point operator*(const Point &p) const {
+        Point result;
+        for (int i = 0; i < 4; i++) {
+            result.e[i] = 0;
+            for (int j = 0; j < 4; j++) {
+                result.e[i] += m[i][j] * p.e[j];
+            }
+        }
+        return result;
+    }
+};
+
+// Output stream for Point
+ostream &operator<<(ostream &os, const Point &p) {
+    os << "[ " << p.e[0] << ", " << p.e[1] << ", " << p.e[2] << " ]";
+    return os;
+}
+
+int main() {
+    // Create a point
+    Point p(1, 2, 3);
+    cout << "Original Point: " << p << endl;
+
+    // Create transformation matrices
+    Matrix translationMatrix = Matrix::translation(2, 3, 4);
+    Matrix rotationMatrixX = Matrix::rotationX(M_PI / 4); // Rotate 45 degrees around X
+    Matrix scalingMatrix = Matrix::scaling(2, 2, 2); // Scale by 2
+
+    // Combine transformations: Scale -> Rotate -> Translate
+    Matrix transformationMatrix = translationMatrix * rotationMatrixX * scalingMatrix;
+
+   
